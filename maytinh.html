@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casio Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+        }
+
+        .calculator {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            width: 300px;
+        }
+
+        .display {
+            background: #a5af9f;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            border-radius: 5px;
+            min-height: 60px;
+            font-size: 24px;
+            word-wrap: break-word;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #666;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #777;
+        }
+
+        .operator {
+            background: #f99;
+        }
+
+        .equals {
+            background: #9f9;
+        }
+
+        .clear {
+            background: #f66;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="appendNumber('(')">(</button>
+            <button onclick="appendNumber(')')">)</button>
+            <button class="operator" onclick="setOperator(':')">&div;</button>
+            
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperator('x')">×</button>
+            
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperator('-')">-</button>
+            
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperator('+')">+</button>
+            
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button onclick="deleteLast()">⌫</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.querySelector('.display');
+        let currentInput = '0';
+        let lastInput = '';
+        
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function appendNumber(num) {
+            if (currentInput === '0' && num !== '.') {
+                currentInput = num;
+            } else {
+                currentInput += num;
+            }
+            updateDisplay();
+        }
+
+        function setOperator(op) {
+            if (currentInput !== '0') {
+                if (!['+', '-', 'x', ':'].includes(currentInput[currentInput.length - 1])) {
+                    currentInput += op;
+                    updateDisplay();
+                }
+            }
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                // Replace 'x' with '*' and ':' with '/' for evaluation
+                let expression = currentInput.replace(/x/g, '*').replace(/:/g, '/');
+                let result = eval(expression);
+                
+                // Format the result
+                if (Number.isInteger(result)) {
+                    currentInput = result.toString();
+                } else {
+                    currentInput = result.toFixed(8).replace(/\.?0+$/, '');
+                }
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+                setTimeout(clearDisplay, 1000);
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9' || event.key === '.') {
+                appendNumber(event.key);
+            } else if (event.key === '+' || event.key === '-') {
+                setOperator(event.key);
+            } else if (event.key === '*') {
+                setOperator('x');
+            } else if (event.key === '/') {
+                setOperator(':');
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculate();
+            } else if (event.key === 'Backspace') {
+                deleteLast();
+            } else if (event.key === 'Escape') {
+                clearDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
